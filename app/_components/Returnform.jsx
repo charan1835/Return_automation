@@ -12,8 +12,8 @@ export default function ReturnForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const textareaRef = useRef(null);
 
-    // YOUR BOLTIC TRIGGER URL (hard-coded for testing)
-    const TRIGGER_URL = "https://asia-south1.workflow.boltic.app/230b6c60-0b07-4d7b-bcb1-462b13e0d9e3";
+    // YOUR BOLTIC TRIGGER URL (configurable via env)
+    const TRIGGER_URL = process.env.NEXT_PUBLIC_TRIGGER_URL;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
