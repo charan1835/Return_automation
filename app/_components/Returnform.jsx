@@ -1,95 +1,93 @@
 'use client';
-import { useState } from 'react';
+
+import { useState, useRef } from 'react';
 import { useUser, useClerk } from '@clerk/nextjs';
 import { toast } from 'sonner';
 
 export default function ReturnForm() {
-    const { isSignedIn, user } = useUser();
+    const { isSignedIn } = useUser();
     const { openSignIn } = useClerk();
-    const [explanation, setExplanation] = useState('');
-    const [reason, setReason] = useState('');
+
+    const [feedback, setFeedback] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const textareaRef = useRef(null);
+
+    // YOUR BOLTIC TRIGGER URL (hard-coded for testing)
+    const TRIGGER_URL = "https://asia-south1.workflow.boltic.app/230b6c60-0b07-4d7b-bcb1-462b13e0d9e3";
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!isSignedIn) {
+            toast.info("Please sign in first.");
             openSignIn();
             return;
         }
 
+        if (!feedback.trim()) {
+            toast.error("Please enter feedback.");
+            textareaRef.current?.focus();
+            return;
+        }
+
         setIsSubmitting(true);
+
         try {
-            const response = await fetch('/api/create-return', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    explanation,
-                    reason,
-                    userEmail: user?.primaryEmailAddress?.emailAddress,
-                    userImage: user?.imageUrl,
-                    userName: user?.fullName,
-                    userId: user?.id,
-                }),
+            const res = await fetch(TRIGGER_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ feedback }),
             });
 
-            if (response.ok) {
-                console.log('data transferred');
-                toast.success('Return request submitted successfully!');
-                setExplanation('');
-                setReason('');
-            } else {
-                const errorData = await response.json();
-                toast.error(errorData.message || 'Failed to submit return request.');
+            if (!res.ok) {
+                toast.error("Failed to submit feedback.");
+                return;
             }
-        } catch (error) {
-            console.error('Error:', error);
-            toast.error('An error occurred. Please try again.');
+
+            toast.success("Feedback submitted successfully!");
+            setFeedback("");
+
+        } catch (err) {
+            console.error(err);
+            toast.error("Network error. Try again.");
         } finally {
             setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl border border-gray-100">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">Return Request</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Return</label>
-                    <select
-                        value={reason}
-                        onChange={(e) => setReason(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-black"
-                        required
-                    >
-                        <option value="" disabled>Select a reason</option>
-                        <option value="defective">Defective / Damaged</option>
-                        <option value="wrong_item">Wrong Item Received</option>
-                        <option value="no_longer_needed">No Longer Needed</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
+        <div className="max-w-xl mx-auto mt-12 p-8 bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-2xl relative">
 
+            <h2 className="text-3xl font-extrabold mb-8 text-center bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                Submit Feedback
+            </h2>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+
+                {/* FEEDBACK FIELD */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Product Explanation</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Your Feedback
+                    </label>
                     <textarea
-                        value={explanation}
-                        onChange={(e) => setExplanation(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md h-32 resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-black"
-                        placeholder="Please explain why you are returning this product..."
+                        ref={textareaRef}
+                        value={feedback}
+                        onChange={(e) => setFeedback(e.target.value)}
+                        className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl h-40 resize-none focus:ring-2 focus:ring-blue-500 outline-none text-gray-800 shadow-sm"
+                        placeholder="Describe your issue or feedback..."
                         required
                     />
                 </div>
 
+                {/* SUBMIT BUTTON */}
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-4 px-6 rounded-xl hover:shadow-lg disabled:opacity-60 flex items-center justify-center gap-2"
                 >
-                    {isSubmitting ? 'Submitting...' : 'Submit Return'}
+                    {isSubmitting ? "Processing..." : "Submit Feedback"}
                 </button>
+
             </form>
         </div>
     );

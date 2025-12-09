@@ -4,9 +4,9 @@ import "./globals.css";
 
 export default function Page() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       <Header />
-      <main className="p-4">
+      <main className="p-4 md:p-8">
         <ReturnForm />
       </main>
     </div>
