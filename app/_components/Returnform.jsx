@@ -5,14 +5,13 @@ import { useUser, useClerk } from '@clerk/nextjs';
 import { toast } from 'sonner';
 
 export default function ReturnForm() {
-    const { isSignedIn } = useUser();
+    const { isSignedIn, user } = useUser();
     const { openSignIn } = useClerk();
 
     const [feedback, setFeedback] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const textareaRef = useRef(null);
 
-    // YOUR BOLTIC TRIGGER URL (configurable via env)
     const TRIGGER_URL = process.env.NEXT_PUBLIC_TRIGGER_URL;
 
     const handleSubmit = async (e) => {
@@ -36,7 +35,10 @@ export default function ReturnForm() {
             const res = await fetch(TRIGGER_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ feedback }),
+                body: JSON.stringify({
+                    feedback,
+                    userEmail: user?.primaryEmailAddress?.emailAddress || null
+                }),
             });
 
             if (!res.ok) {
@@ -44,7 +46,7 @@ export default function ReturnForm() {
                 return;
             }
 
-            toast.success("Feedback submitted successfully!");
+            toast.success("Feedback submitted and email logged!");
             setFeedback("");
 
         } catch (err) {
@@ -63,8 +65,6 @@ export default function ReturnForm() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-
-                {/* FEEDBACK FIELD */}
                 <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                         Your Feedback
@@ -79,7 +79,6 @@ export default function ReturnForm() {
                     />
                 </div>
 
-                {/* SUBMIT BUTTON */}
                 <button
                     type="submit"
                     disabled={isSubmitting}
@@ -87,7 +86,6 @@ export default function ReturnForm() {
                 >
                     {isSubmitting ? "Processing..." : "Submit Feedback"}
                 </button>
-
             </form>
         </div>
     );
