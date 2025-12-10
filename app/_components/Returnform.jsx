@@ -71,7 +71,7 @@ export default function ReturnForm() {
     };
 
     return (
-        <div className="max-w-xl mx-auto mt-12 p-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden">
+        <div className="max-w-xl mx-auto mt-12 p-8 bg-gray-900/90 backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden">
             {/* Background Decorative Elements */}
             <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-blue-500/20 blur-3xl pointer-events-none"></div>
             <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 rounded-full bg-purple-500/20 blur-3xl pointer-events-none"></div>
@@ -94,8 +94,8 @@ export default function ReturnForm() {
                                     type="button"
                                     onClick={() => handleQuickFeedback(reason)}
                                     className={`px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 border ${feedback === reason
-                                            ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/30'
-                                            : 'bg-white/5 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:bg-white/10 hover:border-blue-400'
+                                        ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/30'
+                                        : 'bg-white/5 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:bg-white/10 hover:border-blue-400'
                                         }`}
                                 >
                                     {reason}
