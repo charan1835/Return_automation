@@ -220,5 +220,5 @@ npm run dev
 
 ## **👤 Author**
 
-**Charan (Spartan)**
+**Charan**
 Full-Stack Developer | ML Enthusiast
