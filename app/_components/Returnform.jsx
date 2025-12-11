@@ -9,9 +9,12 @@ export default function ReturnForm() {
     const { openSignIn } = useClerk();
 
     const [feedback, setFeedback] = useState('');
+    const [orderId, setOrderId] = useState('');    // <-- NEW
     const [isSubmitting, setIsSubmitting] = useState(false);
+
     const textareaRef = useRef(null);
 
+    // Boltic Trigger URL
     const TRIGGER_URL = process.env.NEXT_PUBLIC_TRIGGER_URL;
 
     const handleSubmit = async (e) => {
@@ -20,6 +23,11 @@ export default function ReturnForm() {
         if (!isSignedIn) {
             toast.info("Please sign in first.");
             openSignIn();
+            return;
+        }
+
+        if (!orderId.trim()) {
+            toast.error("Order ID is required.");
             return;
         }
 
@@ -36,6 +44,7 @@ export default function ReturnForm() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
+                    orderid: orderId,  // <-- ADDED TO PAYLOAD
                     feedback,
                     userEmail: user?.primaryEmailAddress?.emailAddress || null
                 }),
@@ -46,8 +55,11 @@ export default function ReturnForm() {
                 return;
             }
 
-            toast.success("Feedback submitted and email logged!");
-            setFeedback("");
+            toast.success("Feedback submitted successfully!");
+
+            // Reset fields
+            setOrderId('');
+            setFeedback('');
 
         } catch (err) {
             console.error(err);
@@ -71,70 +83,102 @@ export default function ReturnForm() {
     };
 
     return (
-        <div className="max-w-xl mx-auto mt-12 p-8 bg-gray-900/90 backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden">
-            {/* Background Decorative Elements */}
-            <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-blue-500/20 blur-3xl pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 rounded-full bg-purple-500/20 blur-3xl pointer-events-none"></div>
+        <div className="max-w-2xl mx-auto w-full p-8 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] relative overflow-hidden ring-1 ring-white/5 animate-in fade-in slide-in-from-bottom-8 duration-700">
+
+            <div className="absolute top-0 right-0 -mr-32 -mt-32 w-80 h-80 rounded-full bg-blue-500/10 blur-[80px] pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 -ml-32 -mb-32 w-80 h-80 rounded-full bg-purple-500/10 blur-[80px] pointer-events-none"></div>
 
             <div className="relative z-10">
-                <h2 className="text-4xl font-black mb-2 text-center bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent tracking-tight">
-                    Submit Return
-                </h2>
-                <p className="text-gray-400 text-center mb-8 text-sm font-medium">We're sorry things didn't work out. Tell us why.</p>
+                <div className="text-center mb-10">
+                    <h2 className="text-5xl font-black mb-3 bg-gradient-to-r from-blue-200 via-white to-purple-200 bg-clip-text text-transparent tracking-tighter drop-shadow-sm">
+                        Return Item
+                    </h2>
+                    <p className="text-gray-400 text-lg font-light tracking-wide">We're here to make this right.</p>
+                </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-3 uppercase tracking-wider text-xs">
+                <form onSubmit={handleSubmit} className="space-y-8">
+
+                    {/* ORDER ID FIELD */}
+                    <div className="space-y-3">
+                        <label className="block text-xs font-bold text-blue-300/80 uppercase tracking-[0.2em] ml-1">
+                            Order ID
+                        </label>
+                        <input
+                            type="text"
+                            value={orderId}
+                            onChange={(e) => setOrderId(e.target.value)}
+                            className="w-full p-4 bg-black/20 border border-white/10 rounded-2xl text-gray-100 
+                                       placeholder:text-gray-600 focus:ring-2 focus:ring-blue-500/30 
+                                       focus:border-blue-500/50 outline-none shadow-inner transition-all"
+                            placeholder="Enter your Order ID"
+                            required
+                        />
+                    </div>
+
+                    {/* QUICK SELECT */}
+                    <div className="space-y-4">
+                        <label className="block text-xs font-bold text-blue-300/80 uppercase tracking-[0.2em] ml-1">
                             Quick Select Reason
                         </label>
-                        <div className="flex flex-wrap gap-2 mb-4">
+                        <div className="flex flex-wrap gap-3">
                             {QUICK_REASONS.map((reason) => (
                                 <button
                                     key={reason}
                                     type="button"
                                     onClick={() => handleQuickFeedback(reason)}
-                                    className={`px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 border ${feedback === reason
-                                        ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/30'
-                                        : 'bg-white/5 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:bg-white/10 hover:border-blue-400'
+                                    className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 border backdrop-blur-sm ${feedback === reason
+                                            ? 'bg-blue-600/90 text-white border-blue-500/50 shadow-[0_0_20px_-5px_rgba(37,99,235,0.5)] scale-105'
+                                            : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:border-white/20 hover:text-white hover:scale-105'
                                         }`}
                                 >
                                     {reason}
                                 </button>
                             ))}
                         </div>
-
-                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-2 uppercase tracking-wider text-xs">
-                            Detailed Feedback
-                        </label>
-                        <textarea
-                            ref={textareaRef}
-                            value={feedback}
-                            onChange={(e) => setFeedback(e.target.value)}
-                            className="w-full p-4 bg-gray-50/50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-2xl h-40 resize-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none text-gray-800 dark:text-gray-100 shadow-inner transition-all placeholder:text-gray-400"
-                            placeholder="Please provide more details about your return request..."
-                            required
-                        />
                     </div>
 
+                    {/* DETAILED FEEDBACK */}
+                    <div className="space-y-3">
+                        <label className="block text-xs font-bold text-blue-300/80 uppercase tracking-[0.2em] ml-1">
+                            Detailed Feedback
+                        </label>
+                        <div className="relative group">
+                            <textarea
+                                ref={textareaRef}
+                                value={feedback}
+                                onChange={(e) => setFeedback(e.target.value)}
+                                className="w-full p-5 bg-black/20 border border-white/10 rounded-2xl h-48 resize-none 
+                                           focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 
+                                           outline-none text-gray-100 shadow-inner transition-all 
+                                           placeholder:text-gray-600 group-hover:bg-black/30 group-hover:border-white/20 text-base leading-relaxed"
+                                placeholder="Describe the issue with your item..."
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    {/* SUBMIT BUTTON */}
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="group w-full relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-0.5 active:translate-y-0"
+                        className="group w-full relative overflow-hidden bg-white text-black font-bold py-4 px-6 rounded-xl 
+                                   shadow-[0_0_30px_-5px_rgba(255,255,255,0.3)] hover:shadow-[0_0_50px_-5px_rgba(255,255,255,0.4)] 
+                                   transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed transform 
+                                   hover:-translate-y-0.5 active:translate-y-0"
                     >
-                        <span className="relative z-10 flex items-center justify-center gap-2">
+                        <span className="relative z-10 flex items-center justify-center gap-3 text-lg">
                             {isSubmitting ? (
                                 <>
-                                    <svg className="animate-spin h-5 w-5 text-white" opacity="0.7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <svg className="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                                     </svg>
                                     Processing...
                                 </>
                             ) : (
-                                "Submit Request"
+                                "Submit Return Request"
                             )}
                         </span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </button>
                 </form>
             </div>
