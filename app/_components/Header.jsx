@@ -102,8 +102,15 @@ export default function Header() {
                                 </SignUpButton>
                             </SignedOut>
                             <SignedIn>
-                                <div className="flex justify-center transform scale-125">
-                                    <UserButton />
+                                <div className="flex justify-center transform scale-150 p-2">
+                                    <UserButton
+                                        appearance={{
+                                            elements: {
+                                                avatarBox: "w-12 h-12 border-2 border-white/20 hover:border-white/50 transition-colors shadow-lg"
+                                            }
+                                        }}
+                                        userProfileMode="modal"
+                                    />
                                 </div>
                             </SignedIn>
                         </div>
