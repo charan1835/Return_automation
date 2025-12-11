@@ -84,7 +84,9 @@ export default function ReturnForm() {
         "Quality Not As Expected",
         "Better Price Available",
         "Changed Mind",
-        "Shipping/Delivery Issue"
+        "Shipping/Delivery Issue",
+        "Food Quality/Freshness", // New
+        "Incorrect Food Order"    // New
     ];
 
     const QUICK_REASONS = [
@@ -95,7 +97,11 @@ export default function ReturnForm() {
         "Color doesn't match photo",
         "Found a better price elsewhere",
         "Arrived too late",
-        "Box was open"
+        "Box was open",
+        "Food arrived cold",      // New
+        "Items missing from order", // New
+        "Tastes spoiled/stale",   // New
+        "Wrong dietary ingredients" // New
     ];
 
     const handleQuickFeedback = (reason) => {
